@@ -1,10 +1,20 @@
 document.addEventListener("keydown", drawPipe);
-x = 900;
 
-function drawPipe() {
+function drawPipes(pipes) {
+  for (var pipe of pipes) {
+    drawPipe(pipe);
+  }
+}
+
+function drawPipe(pipe) {
   ctx.beginPath();
-  ctx.fillStyle = "black";
-  var rect = ctx.fillRect(x, 250, 10, 300);
+  ctx.fillStyle = pipe.color;
+  var rect = ctx.fillRect(
+    pipe.position.x,
+    pipe.position.y,
+    pipe.dimensions.width,
+    pipe.dimensions.height
+  );
   ctx.closePath();
-  x = x - 1.2;
+  pipe.position.x = pipe.position.x - 1.2;
 }

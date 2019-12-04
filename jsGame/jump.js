@@ -5,12 +5,37 @@ document.addEventListener("keyup", function(e) {
   keys[e.keyCode] = false;
 });
 
+let pipes = [
+  {
+    position: {
+      x: 900,
+      y: 250
+    },
+    dimensions: {
+      width: 10,
+      height: 300
+    },
+    color: "black"
+  }
+];
+
+let player = {
+  position: {
+    x: 300,
+    y: 500
+  },
+  velocity: {
+    x: 0,
+    y: 0
+  },
+  dimensions: {
+    width: 30,
+    height: 30
+  }
+};
+
 var canvas,
   menuActive = true,
-  westX = 300,
-  westY = 500,
-  velX = 0,
-  velY = 0,
   maxVelY = 6,
   speed = 3,
   jumpSpeed = 2,
@@ -42,9 +67,15 @@ function render() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   move();
+  var hit = collisionDetection(player, pipes);
+
+  if (hit !== null) {
+    hit.color = "red";
+  }
+
   drawLevel();
-  drawPipe();
-  colliosionDetection();
+  drawPipes(pipes);
+
   requestAnimationFrame(render); //recursively updates the level
 }
 
@@ -56,7 +87,14 @@ function drawLevel() {
   bigBlock(blockstart, 2, "green", groundBlocks, 1); //draw the ground
   ctx.fillStyle = "red";
   ctx.beginPath();
-  var circle = ctx.arc(westX, westY, 30, 0, Math.PI * 2, true);
+  var circle = ctx.arc(
+    player.position.x,
+    player.position.y,
+    player.dimensions.width,
+    0,
+    Math.PI * 2,
+    true
+  );
   ctx.fill();
 }
 
@@ -64,18 +102,22 @@ function drawLevel() {
 function move() {
   if (keys[32]) {
     //if w or space is pressed
-    velY = -maxVelY; //sets the initial velocity when jumping
+    player.velocity.y = -maxVelY; //sets the initial velocity when jumping
     jumping = true;
     onGround = false;
   }
 
   if (jumping == true) {
     //if the character is moving upwards
-    velY += gravity; //addi
-    velY *= inertia;
-    westY += velY;
+    player.velocity.y += gravity; //addi
+    player.velocity.y *= inertia;
+    player.position.y += player.velocity.y;
     for (var i = 0; i < groundBlocks; i++) {
-      if (westY <= 500 && westY >= 492 && westX <= groundX[i] + 45) {
+      if (
+        player.position.y <= 500 &&
+        player.position.y >= 492 &&
+        player.position.x <= groundX[i] + 45
+      ) {
         //if the ball is on the ground, stop subtracting gravity from Y coord
         jumping = false;
         onGround = true;
